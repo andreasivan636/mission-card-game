@@ -1,0 +1,469 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MISSION CARD — IT Quest</title>
+  <meta name="description" content="Mission Card Game — Scan QR, temukan misi tersembunyi kelompokmu dengan Python!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#050c14;--surface:#0b1a2a;--card-bg:#0d1f33;--border:#1a3a5c;
+      --accent:#00d4ff;--accent2:#7b2fff;--green:#00ff88;--yellow:#ffd700;
+      --red:#ff4757;--text:#c8e0f0;--text-dim:#5a7fa0;
+      --glow:0 0 20px rgba(0,212,255,0.35);
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+    body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.12) 2px,rgba(0,0,0,0.12) 4px);pointer-events:none;z-index:0}
+    .particle{position:fixed;width:2px;height:2px;border-radius:50%;pointer-events:none;animation:float linear infinite;opacity:0;z-index:0}
+    @keyframes float{0%{transform:translateY(100vh) translateX(0);opacity:0}10%{opacity:0.8}90%{opacity:0.4}100%{transform:translateY(-10vh) translateX(60px);opacity:0}}
+    .wrapper{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:0 16px 100px}
+    header{text-align:center;padding:40px 16px 30px}
+    .badge{display:inline-block;background:linear-gradient(135deg,rgba(0,212,255,0.15),rgba(123,47,255,0.15));border:1px solid rgba(0,212,255,0.3);border-radius:100px;padding:6px 18px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:16px}
+    .badge::before{content:'[ '}.badge::after{content:' ]'}
+    h1{font-family:'Orbitron',monospace;font-size:clamp(26px,8vw,40px);font-weight:900;line-height:1.1;background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 60%,var(--green) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;position:relative}
+    h1::before{content:attr(data-text);position:absolute;inset:0;background:linear-gradient(135deg,var(--red) 0%,var(--yellow) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:glitch 4s infinite;opacity:0}
+    @keyframes glitch{0%,94%,100%{opacity:0;transform:none}95%{opacity:0.6;transform:translateX(-3px) skewX(-5deg)}97%{opacity:0.4;transform:translateX(3px) skewX(5deg)}}
+    .subtitle{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-dim);letter-spacing:1px;margin-bottom:6px}
+    .status-bar{display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--green);margin-top:14px}
+    .status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 1.4s ease-in-out infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+    .instruction{background:linear-gradient(135deg,rgba(0,212,255,0.06),rgba(123,47,255,0.06));border:1px solid rgba(0,212,255,0.2);border-radius:14px;padding:16px 18px;margin-bottom:28px;font-size:13px;line-height:1.7;color:var(--text)}
+    .instruction strong{color:var(--accent)}
+    .steps{margin-top:10px;padding-left:0;list-style:none;counter-reset:step}
+    .steps li{counter-increment:step;display:flex;align-items:flex-start;gap:10px;margin-bottom:6px;font-size:12.5px}
+    .steps li::before{content:counter(step);flex-shrink:0;width:20px;height:20px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:10px;color:#000;font-weight:bold}
+    .section-label{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+    .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+    .cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .mission-card{position:relative;background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:18px 14px 16px;cursor:pointer;transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s;text-align:center;overflow:hidden;-webkit-tap-highlight-color:transparent;user-select:none;width:100%}
+    .mission-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,212,255,0.07),rgba(123,47,255,0.07));opacity:0;transition:opacity 0.3s;border-radius:inherit}
+    .mission-card:hover::before,.mission-card:active::before{opacity:1}
+    .mission-card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:var(--glow)}
+    .mission-card:active{transform:scale(0.96)}
+    .mission-card::after{content:'';position:absolute;top:0;left:0;width:0;height:0;border-style:solid;border-width:14px 14px 0 0;border-color:var(--accent) transparent transparent transparent;opacity:0.6}
+    .card-num{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;margin-bottom:8px}
+    .card-icon{font-size:28px;margin-bottom:8px;display:block;filter:drop-shadow(0 0 6px rgba(0,212,255,0.5))}
+    .card-name{font-family:'Orbitron',monospace;font-size:clamp(9px,2.8vw,12px);font-weight:700;color:var(--accent);line-height:1.3;text-transform:uppercase;letter-spacing:0.5px}
+    .card-tag{display:inline-block;margin-top:8px;background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.25);border-radius:100px;padding:2px 8px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--green);letter-spacing:1px}
+    .overlay{position:fixed;inset:0;background:rgba(5,12,20,0.92);backdrop-filter:blur(8px);z-index:100;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s}
+    .overlay.active{opacity:1;pointer-events:all}
+    .modal-sheet{width:100%;max-width:480px;max-height:92vh;background:var(--surface);border-radius:24px 24px 0 0;border-top:1px solid var(--border);border-left:1px solid var(--border);border-right:1px solid var(--border);overflow-y:auto;transform:translateY(100%);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);position:relative}
+    .overlay.active .modal-sheet{transform:translateY(0)}
+    .modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 0}
+    .modal-inner{padding:20px 20px 40px}
+    .modal-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;gap:10px}
+    .modal-group-info{flex:1}
+    .modal-num{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:2px;margin-bottom:4px}
+    .modal-title{font-family:'Orbitron',monospace;font-size:clamp(15px,4.5vw,20px);font-weight:700;color:var(--accent);line-height:1.2}
+    .close-btn{flex-shrink:0;width:36px;height:36px;background:rgba(255,71,87,0.12);border:1px solid rgba(255,71,87,0.3);border-radius:50%;color:var(--red);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s,transform 0.2s;line-height:1}
+    .close-btn:hover{background:rgba(255,71,87,0.25);transform:rotate(90deg)}
+    .mission-brief{background:linear-gradient(135deg,rgba(0,255,136,0.06),rgba(0,212,255,0.06));border:1px solid rgba(0,255,136,0.2);border-radius:12px;padding:14px 16px;margin-bottom:20px}
+    .brief-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+    .brief-text{font-size:13px;line-height:1.6;color:var(--text)}
+    .brief-text em{color:var(--yellow);font-style:normal;font-weight:600}
+    .code-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+    .code-label::before{content:'▶';font-size:8px}
+    .code-wrapper{position:relative;background:#020810;border:1px solid rgba(0,212,255,0.2);border-radius:14px;overflow:hidden;margin-bottom:14px}
+    .code-topbar{display:flex;align-items:center;gap:6px;padding:10px 14px;background:rgba(0,212,255,0.05);border-bottom:1px solid rgba(0,212,255,0.1)}
+    .dot{width:10px;height:10px;border-radius:50%}
+    .dot-red{background:#ff5f57}.dot-yellow{background:#febc2e}.dot-green{background:#28c840}
+    .code-filename{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);margin-left:4px}
+    pre.code-block{padding:16px 16px 14px;font-family:'Share Tech Mono',monospace;font-size:clamp(12px,3.4vw,14px);line-height:1.7;color:#e0f0ff;white-space:pre;overflow-x:auto;tab-size:4}
+    .copy-btn{width:100%;background:linear-gradient(135deg,rgba(0,212,255,0.12),rgba(123,47,255,0.12));border:1px solid rgba(0,212,255,0.35);border-radius:12px;padding:13px;font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.2s,transform 0.15s,box-shadow 0.2s;letter-spacing:1px;margin-bottom:20px}
+    .copy-btn:hover{background:linear-gradient(135deg,rgba(0,212,255,0.22),rgba(123,47,255,0.22));box-shadow:var(--glow);transform:translateY(-2px)}
+    .copy-btn:active{transform:scale(0.97)}
+    .copy-btn.copied{color:var(--green);border-color:rgba(0,255,136,0.4);background:rgba(0,255,136,0.1)}
+    .hint-box{background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.2);border-radius:12px;padding:14px 16px}
+    .hint-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--yellow);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+    .hint-text{font-size:12.5px;line-height:1.65;color:var(--text)}
+    .hint-text strong{color:var(--yellow)}
+    footer{text-align:center;padding:30px 16px 20px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px}
+    ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+    code.inline{color:var(--accent);background:rgba(0,212,255,0.1);padding:2px 6px;border-radius:4px;font-size:12px;font-family:'Share Tech Mono',monospace}
+  </style>
+</head>
+<body>
+
+<div class="particle" style="left:5%;animation-duration:8s;animation-delay:0s;background:#00d4ff"></div>
+<div class="particle" style="left:15%;animation-duration:12s;animation-delay:2s;background:#7b2fff"></div>
+<div class="particle" style="left:30%;animation-duration:9s;animation-delay:4s;background:#00ff88"></div>
+<div class="particle" style="left:50%;animation-duration:14s;animation-delay:1s;background:#00d4ff"></div>
+<div class="particle" style="left:65%;animation-duration:10s;animation-delay:6s;background:#7b2fff"></div>
+<div class="particle" style="left:80%;animation-duration:11s;animation-delay:3s;background:#00ff88"></div>
+<div class="particle" style="left:90%;animation-duration:7s;animation-delay:5s;background:#00d4ff"></div>
+
+<div class="wrapper">
+  <header>
+    <div class="badge">IT Quest 2025</div>
+    <h1 data-text="MISSION CARD">MISSION CARD</h1>
+    <p class="subtitle">// Temukan misi rahasiamu, agen! //</p>
+    <div class="status-bar">
+      <span class="status-dot"></span>
+      SYSTEM ONLINE &nbsp;|&nbsp; 10 MISSIONS ACTIVE
+    </div>
+  </header>
+
+  <div class="instruction">
+    <strong>📋 Cara Bermain:</strong>
+    <ol class="steps">
+      <li>Pilih kartu sesuai nama kelompokmu</li>
+      <li>Salin kode Python yang muncul ke compiler-mu</li>
+      <li>Jalankan kode &amp; catat angka-angka outputnya</li>
+      <li>Decode angka desimal ke teks (ASCII) untuk menemukan jawaban</li>
+      <li>Jawaban = nama snack yang wajib kamu bawa! 🍿</li>
+    </ol>
+  </div>
+
+  <div class="section-label">PILIH KELOMPOKMU</div>
+  <div class="cards-grid" id="cardsGrid"></div>
+</div>
+
+<footer>&lt;/&gt; MISSION CARD SYSTEM v1.0 &nbsp;|&nbsp; IT QUEST 2025</footer>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true">
+  <div class="modal-sheet" id="modalSheet">
+    <div class="modal-handle"></div>
+    <div class="modal-inner">
+      <div class="modal-header">
+        <div class="modal-group-info">
+          <div class="modal-num" id="modalNum">MISSION #00</div>
+          <div class="modal-title" id="modalTitle">Group Name</div>
+        </div>
+        <button class="close-btn" id="closeBtn" aria-label="Tutup">&times;</button>
+      </div>
+      <div class="mission-brief">
+        <div class="brief-label">📡 MISSION BRIEF</div>
+        <p class="brief-text">Jalankan kode Python ini di compiler-mu. Output berupa angka desimal. Decode tiap angka ke karakter ASCII untuk menemukan <em>nama snack rahasiamu</em>! 🕵️</p>
+      </div>
+      <div class="code-label">SOURCE CODE — PYTHON 3</div>
+      <div class="code-wrapper">
+        <div class="code-topbar">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-yellow"></span>
+          <span class="dot dot-green"></span>
+          <span class="code-filename" id="codeFilename">mission_00.py</span>
+        </div>
+        <pre class="code-block" id="codeBlock"></pre>
+      </div>
+      <button class="copy-btn" id="copyBtn">
+        <span id="copyIcon">⎘</span>
+        <span id="copyText">Copy to Clipboard</span>
+      </button>
+      <div class="hint-box">
+        <div class="hint-label">💡 HINT — Cara Decode ASCII</div>
+        <p class="hint-text">
+          Setelah dapat output angka, gunakan tabel ASCII atau:<br/>
+          <strong>Python:</strong> <code class="inline">chr(angka)</code><br/>
+          Contoh: <strong>72 = H</strong>, <strong>101 = e</strong>, <strong>108 = l</strong><br/>
+          Gabungkan semua karakter menjadi satu kata/kalimat!
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const missions = [
+  {
+    id: 1,
+    name: "Business Analyst",
+    icon: "📊",
+    code: `x = [
+    70, 110,  90, 100,
+    20,  60,  90,  90,
+    20,  60, 110,  90,
+    90, 100
+]
+y = [
+     9,   4,  11,  11,
+    12,  13,   9,  11,
+    12,   7,   4,  11,
+     7,   9
+]
+print(*[i + j for i, j in zip(x, y)])`
+  },
+  {
+    id: 2,
+    name: "System Analyst",
+    icon: "🖥️",
+    code: `x = [
+     70, 100,  90, 100,
+    120,  20,  70, 100,
+    110,  90, 110,  90,
+     90, 110, 110, 120,
+     20,  80, 100,  90,
+    110, 110, 110
+]
+y = [
+    10,  11,   9,   7,
+     1,  12,  13,  16,
+     4,   7,   9,   8,
+    11,   4,   4,   1,
+    12,   9,  11,  13,
+     7,   4,   6
+]
+print(*[i + j for i, j in zip(x, y)])`
+  },
+  {
+    id: 3,
+    name: "UI/UX Designer",
+    icon: "🎨",
+    code: `x = [
+    70,  90, 100, 100,
+   110,  90,  20,  70,
+   100, 100,  90, 120,
+    20,  60, 110, 110,
+   110, 100, 110
+]
+y = [
+     4,   7,  12,  11,
+     6,   7,  12,   2,
+    11,  10,  11,   1,
+    12,   6,   7,   6,
+     6,   1,   4
+]
+print(*[i + j for i, j in zip(x, y)])`
+  },
+  {
+    id: 4,
+    name: "Software Engineer",
+    icon: "⚙️",
+    code: `x = [
+    60, 100, 100, 110,
+    90, 110, 100,  20,
+    70, 100, 110,  90,
+    20,  70,  90,  90,
+   110,  90,  90,  90,
+   100
+]
+y = [
+     7,   4,   5,   6,
+     7,   6,  11,  12,
+     6,   5,   6,  11,
+    12,  13,  11,   8,
+     9,  11,  11,  10,
+     0
+]
+print(*[i + j for i, j in zip(x, y)])`
+  },
+  {
+    id: 5,
+    name: "Web Developer",
+    icon: "🌐",
+    code: `x = [
+    80, 110,  90, 100,
+    90,  20,  70, 100,
+   100, 100, 100, 100,
+   100,  20,  60,  90,
+   100,  90, 100, 100,
+   100
+]
+y = [
+     1,   6,  11,   8,
+     7,  12,  13,   5,
+    10,   3,   7,  10,
+     3,  12,   6,   7,
+     8,   7,   0,   0,
+    11
+]
+print(*[i + j for i, j in zip(x, y)])`
+  },
+  {
+    id: 6,
+    name: "Mobile Developer",
+    icon: "📱",
+    code: `x = [
+    80,  90, 110, 100,
+    20,  70, 100, 110,
+    20,  60,  90, 110,
+    90,  90,  90, 110,
+    90
+]
+y = [
+     4,   7,   4,  11,
+    12,   8,   1,   6,
+    12,   6,   7,   4,
+     8,  11,   9,   7,
+    11
+]
+print(*[i + j for i, j in zip(x, y)])`
+  },
+  {
+    id: 7,
+    name: "Data Analyst",
+    icon: "📈",
+    code: `x = [
+    60, 100, 100, 100,
+   110, 100, 110,  20,
+    70,  90, 100, 110,
+   100, 100,  20,  60,
+    90, 100,  90, 110
+]
+y = [
+     7,   4,   1,   1,
+     6,  11,   5,  12,
+     4,   7,   3,   0,
+     3,   0,  12,   6,
+     7,   7,   7,   4
+]
+print(*[i + j for i, j in zip(x, y)])`
+  },
+  {
+    id: 8,
+    name: "Database Administrator",
+    icon: "🗄️",
+    code: `x = [
+    60,  90, 100, 100,
+    40,  60,  90, 100,
+   100,  20,  70,  90,
+   120, 120
+]
+y = [
+     6,  11,  10,   3,
+     5,   6,  11,  10,
+     3,  12,   7,   7,
+     0,   0
+]
+print(*[i + j for i, j in zip(x, y)])`
+  },
+  {
+    id: 9,
+    name: "IT Consultant",
+    icon: "💼",
+    code: `x = [
+    70,  89, 120, 110,
+    90, 110,  20,  60,
+   110, 100, 110, 100,
+   100,  90, 100,  20,
+    60, 100, 100,  90,
+   100, 100,  90, 100,
+    90
+]
+y = [
+     8,  11,   0,   6,
+     7,   4,  12,   6,
+     4,  11,   9,  10,
+     5,  11,  15,  12,
+     7,   4,  11,   9,
+    11,   8,   7,  16,
+    11
+]
+print(*[i + j for i, j in zip(x, y)])`
+  },
+  {
+    id: 10,
+    name: "Cyber Security Analyst",
+    icon: "🔐",
+    code: `x = [
+    80, 100, 100,  90,
+    20,  70,  90, 100,
+   100, 100, 110, 110,
+    20,  70, 100, 100,
+   110
+]
+y = [
+     2,  11,   9,   7,
+    12,   7,   7,   8,
+     7,   5,   6,   6,
+    12,   5,   1,   6,
+     7
+]
+print(*[i + j for i, j in zip(x, y)])`
+  }
+];
+
+// Build cards
+const grid = document.getElementById('cardsGrid');
+missions.forEach(m => {
+  const btn = document.createElement('button');
+  btn.className = 'mission-card';
+  btn.setAttribute('aria-label', 'Buka misi ' + m.name);
+  btn.innerHTML =
+    '<div class="card-num">MISSION #' + String(m.id).padStart(2,'0') + '</div>' +
+    '<span class="card-icon">' + m.icon + '</span>' +
+    '<div class="card-name">' + m.name + '</div>' +
+    '<span class="card-tag">TAP TO UNLOCK</span>';
+  btn.addEventListener('click', function(){ openModal(m); });
+  grid.appendChild(btn);
+});
+
+// Modal
+const overlay = document.getElementById('overlay');
+const modalNum = document.getElementById('modalNum');
+const modalTitle = document.getElementById('modalTitle');
+const codeFilename = document.getElementById('codeFilename');
+const codeBlock = document.getElementById('codeBlock');
+const copyBtn = document.getElementById('copyBtn');
+const copyIcon = document.getElementById('copyIcon');
+const copyText = document.getElementById('copyText');
+const closeBtn = document.getElementById('closeBtn');
+let currentCode = '';
+
+function openModal(m) {
+  modalNum.textContent = 'MISSION #' + String(m.id).padStart(2,'0');
+  modalTitle.textContent = m.name;
+  codeFilename.textContent = 'mission_' + String(m.id).padStart(2,'0') + '.py';
+  currentCode = m.code;
+  codeBlock.textContent = m.code;
+  resetCopy();
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('modalSheet').scrollTop = 0;
+}
+
+function closeModal() {
+  overlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+closeBtn.addEventListener('click', closeModal);
+overlay.addEventListener('click', function(e){ if(e.target===overlay) closeModal(); });
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeModal(); });
+
+function resetCopy() {
+  copyBtn.classList.remove('copied');
+  copyIcon.textContent = '⎘';
+  copyText.textContent = 'Copy to Clipboard';
+}
+
+copyBtn.addEventListener('click', function() {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(currentCode).then(showCopied).catch(fallbackCopy);
+  } else {
+    fallbackCopy();
+  }
+});
+
+function fallbackCopy() {
+  var ta = document.createElement('textarea');
+  ta.value = currentCode;
+  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); showCopied(); } catch(e) { alert('Salin manual dari kotak kode di atas.'); }
+  document.body.removeChild(ta);
+}
+
+function showCopied() {
+  copyBtn.classList.add('copied');
+  copyIcon.textContent = '✓';
+  copyText.textContent = 'Tersalin! Tempel di compiler-mu';
+  setTimeout(resetCopy, 3000);
+}
+
+// Swipe down to close
+var sheet = document.getElementById('modalSheet');
+var touchStartY = 0;
+sheet.addEventListener('touchstart', function(e){ touchStartY = e.touches[0].clientY; }, {passive:true});
+sheet.addEventListener('touchend', function(e){
+  var dy = e.changedTouches[0].clientY - touchStartY;
+  if(dy > 80 && sheet.scrollTop === 0) closeModal();
+}, {passive:true});
+</script>
+</body>
+</html>
