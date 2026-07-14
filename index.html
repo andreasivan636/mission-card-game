@@ -799,6 +799,144 @@
         font-size: 11px;
       }
     }
+
+    /* ── ASCII DECODER TOOL ── */
+    .decoder-body {
+      padding: 10px;
+    }
+
+    .decoder-label {
+      font-size: 11px;
+      color: var(--win-text);
+      margin-bottom: 4px;
+      display: block;
+      font-weight: bold;
+    }
+
+    .decoder-textarea {
+      width: 100%;
+      height: 54px;
+      resize: vertical;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 12px;
+      color: var(--win-text);
+      background: var(--win-input-bg);
+      border-top: 2px solid var(--win-dark);
+      border-left: 2px solid var(--win-dark);
+      border-right: 2px solid var(--win-light);
+      border-bottom: 2px solid var(--win-light);
+      padding: 4px 6px;
+      box-sizing: border-box;
+      outline: none;
+      margin-bottom: 6px;
+    }
+
+    .decoder-textarea:focus {
+      border-top-color: var(--win-titlebar);
+      border-left-color: var(--win-titlebar);
+    }
+
+    .decoder-output {
+      width: 100%;
+      height: 44px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 13px;
+      font-weight: bold;
+      color: var(--win-titlebar);
+      background: #f0f4ff;
+      border-top: 2px solid var(--win-dark);
+      border-left: 2px solid var(--win-dark);
+      border-right: 2px solid var(--win-light);
+      border-bottom: 2px solid var(--win-light);
+      padding: 4px 8px;
+      box-sizing: border-box;
+      resize: none;
+      cursor: default;
+      letter-spacing: 0.5px;
+    }
+
+    .decoder-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .decoder-btn {
+      background: var(--win-face);
+      border-top: 2px solid var(--win-light);
+      border-left: 2px solid var(--win-light);
+      border-right: 2px solid var(--win-dark);
+      border-bottom: 2px solid var(--win-dark);
+      padding: 4px 18px;
+      font-family: 'Tahoma', Arial, sans-serif;
+      font-size: 11px;
+      font-weight: bold;
+      color: var(--win-text);
+      cursor: pointer;
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+      flex-shrink: 0;
+    }
+
+    .decoder-btn:hover {
+      background: #e8e4dc;
+    }
+
+    .decoder-btn:active {
+      border-top: 2px solid var(--win-dark);
+      border-left: 2px solid var(--win-dark);
+      border-right: 2px solid var(--win-light);
+      border-bottom: 2px solid var(--win-light);
+      padding-top: 6px;
+      padding-left: 20px;
+    }
+
+    .decoder-clear-btn {
+      background: var(--win-face);
+      border-top: 2px solid var(--win-light);
+      border-left: 2px solid var(--win-light);
+      border-right: 2px solid var(--win-dark);
+      border-bottom: 2px solid var(--win-dark);
+      padding: 4px 10px;
+      font-family: 'Tahoma', Arial, sans-serif;
+      font-size: 11px;
+      color: var(--win-text-dim);
+      cursor: pointer;
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+      flex-shrink: 0;
+    }
+
+    .decoder-clear-btn:hover {
+      color: var(--win-text);
+      background: #e8e4dc;
+    }
+
+    .decoder-clear-btn:active {
+      border-top: 2px solid var(--win-dark);
+      border-left: 2px solid var(--win-dark);
+      border-right: 2px solid var(--win-light);
+      border-bottom: 2px solid var(--win-light);
+    }
+
+    .decoder-error {
+      color: #cc0000;
+      font-size: 10px;
+      font-style: italic;
+      min-height: 14px;
+      margin-bottom: 4px;
+    }
+
+    .decoder-statusbar {
+      background: var(--win-face);
+      border-top: 1px solid var(--win-shadow);
+      padding: 3px 8px;
+      font-size: 10px;
+      color: var(--win-text-dim);
+      display: flex;
+      justify-content: space-between;
+    }
   </style>
 </head>
 
@@ -877,6 +1015,51 @@
       <div class="win-body"
         style="background:linear-gradient(135deg,#c8dce8 0%,#dce8f0 100%);border-top:1px solid #aaa;">
         <div class="cards-grid" id="cardsGrid"></div>
+      </div>
+    </div>
+
+    <!-- ASCII DECODER TOOL WINDOW -->
+    <div class="win-window" id="asciiDecoderWindow">
+      <div class="win-titlebar">
+        <div class="win-titlebar-left">
+          <span class="win-titlebar-icon">🔢</span>
+          <span class="win-titlebar-text">ASCII Decoder Tool</span>
+        </div>
+        <div class="win-controls">
+          <button class="win-ctrl-btn" title="Minimize">_</button>
+          <button class="win-ctrl-btn" title="Maximize">□</button>
+          <button class="win-ctrl-btn" title="Close">✕</button>
+        </div>
+      </div>
+      <div class="section-label">🔡 &nbsp;Konversi angka ASCII → Teks nama snack</div>
+      <div class="decoder-body">
+        <label class="decoder-label" for="asciiInput">
+          Paste hasil angka dari Colab di sini (pisahkan dengan spasi):
+        </label>
+        <textarea
+          class="decoder-textarea"
+          id="asciiInput"
+          placeholder="Contoh: 72 101 108 108 111"
+          spellcheck="false"
+          autocomplete="off"
+        ></textarea>
+        <div class="decoder-row">
+          <button class="decoder-btn" id="decodeBtn" onclick="decodeAscii()">Decode ▶</button>
+          <button class="decoder-clear-btn" id="clearBtn" onclick="clearDecoder()">Clear</button>
+          <span class="decoder-error" id="decodeError"></span>
+        </div>
+        <label class="decoder-label" for="asciiOutput">Hasil Decode:</label>
+        <textarea
+          class="decoder-output"
+          id="asciiOutput"
+          readonly
+          placeholder="Hasil teks akan muncul di sini…"
+          spellcheck="false"
+        ></textarea>
+      </div>
+      <div class="decoder-statusbar">
+        <span id="decoderStatus">Siap — Masukkan angka lalu klik Decode</span>
+        <span>ASCII / UTF-8</span>
       </div>
     </div>
 
@@ -1285,6 +1468,66 @@ print(*[i + j for i, j in zip(x, y)])`
     }
     updateClock();
     setInterval(updateClock, 10000);
+
+    // ── ASCII Decoder Tool ──
+    function decodeAscii() {
+      var input = document.getElementById('asciiInput').value.trim();
+      var errorEl = document.getElementById('decodeError');
+      var outputEl = document.getElementById('asciiOutput');
+      var statusEl = document.getElementById('decoderStatus');
+
+      errorEl.textContent = '';
+      outputEl.value = '';
+
+      if (!input) {
+        errorEl.textContent = '⚠ Input kosong. Masukkan angka terlebih dahulu.';
+        statusEl.textContent = 'Error — input kosong';
+        return;
+      }
+
+      var tokens = input.split(/\s+/).filter(function(t) { return t !== ''; });
+      var chars = [];
+      var hasError = false;
+
+      for (var i = 0; i < tokens.length; i++) {
+        var num = parseInt(tokens[i], 10);
+        if (isNaN(num)) {
+          errorEl.textContent = '⚠ Token tidak valid: "' + tokens[i] + '". Pastikan hanya angka dipisah spasi.';
+          statusEl.textContent = 'Error — token tidak valid';
+          hasError = true;
+          break;
+        }
+        if (num < 0 || num > 127) {
+          errorEl.textContent = '⚠ Nilai ' + num + ' di luar rentang ASCII (0–127).';
+          statusEl.textContent = 'Error — nilai di luar rentang ASCII';
+          hasError = true;
+          break;
+        }
+        chars.push(String.fromCharCode(num));
+      }
+
+      if (!hasError) {
+        var result = chars.join('');
+        outputEl.value = result;
+        statusEl.textContent = 'Decoded ' + tokens.length + ' karakter → "' + result + '"';
+      }
+    }
+
+    function clearDecoder() {
+      document.getElementById('asciiInput').value = '';
+      document.getElementById('asciiOutput').value = '';
+      document.getElementById('decodeError').textContent = '';
+      document.getElementById('decoderStatus').textContent = 'Siap — Masukkan angka lalu klik Decode';
+      document.getElementById('asciiInput').focus();
+    }
+
+    // Allow Enter key in input area to trigger decode
+    document.getElementById('asciiInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        decodeAscii();
+      }
+    });
   </script>
 </body>
 
