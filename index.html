@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mission Card — IT Quest 2025</title>
+  <title>Mission Card — IT Quest 2026</title>
   <meta name="description" content="Mission Card Game — Scan QR, temukan misi tersembunyi kelompokmu dengan Python!" />
   <style>
     *,
@@ -42,11 +42,17 @@
     body {
       font-family: 'Tahoma', 'MS Sans Serif', Arial, sans-serif;
       font-size: 11px;
-      background-color: var(--win-bg);
-      background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Windows_7_Bliss_Wallpaper_-_Updated_Colors.png/1280px-Windows_7_Bliss_Wallpaper_-_Updated_Colors.png');
+      background-color: transparent;
+      /* Pastikan warna solid dihapus */
+
+      /* PANGGIL NAMA FILE GAMBARMU DI SINI */
+      background-image: url('./bg.png');
+
       background-size: cover;
       background-position: center;
+      background-repeat: no-repeat;
       background-attachment: fixed;
+
       min-height: 100vh;
       padding-bottom: var(--taskbar-h);
       color: var(--win-text);
@@ -800,135 +806,103 @@
       }
     }
 
-    /* ── ASCII DECODER TOOL ── */
-    .decoder-body {
+    /* ── ASCII DECODE TABLE ── */
+    .ascii-table-body {
       padding: 10px;
     }
 
-    .decoder-label {
+    .ascii-system-msg {
+      background: #fffbcc;
+      border: 1px solid #c8a000;
+      border-left: 4px solid #c8a000;
+      padding: 7px 10px;
       font-size: 11px;
-      color: var(--win-text);
-      margin-bottom: 4px;
-      display: block;
+      line-height: 1.6;
+      margin-bottom: 10px;
+      color: #5a3c00;
       font-weight: bold;
     }
 
-    .decoder-textarea {
-      width: 100%;
-      height: 54px;
-      resize: vertical;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 12px;
-      color: var(--win-text);
+    .ascii-system-msg span {
+      color: #000080;
+    }
+
+    .ascii-table-wrap {
       background: var(--win-input-bg);
       border-top: 2px solid var(--win-dark);
       border-left: 2px solid var(--win-dark);
       border-right: 2px solid var(--win-light);
       border-bottom: 2px solid var(--win-light);
-      padding: 4px 6px;
-      box-sizing: border-box;
-      outline: none;
-      margin-bottom: 6px;
+      padding: 6px;
+      overflow-x: auto;
     }
 
-    .decoder-textarea:focus {
-      border-top-color: var(--win-titlebar);
-      border-left-color: var(--win-titlebar);
+    .ascii-multi-col {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px 8px;
     }
 
-    .decoder-output {
-      width: 100%;
-      height: 44px;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 13px;
+    @media(max-width: 400px) {
+      .ascii-multi-col {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .ascii-group-title {
+      grid-column: 1 / -1;
+      font-size: 10px;
       font-weight: bold;
       color: var(--win-titlebar);
-      background: #f0f4ff;
-      border-top: 2px solid var(--win-dark);
-      border-left: 2px solid var(--win-dark);
-      border-right: 2px solid var(--win-light);
-      border-bottom: 2px solid var(--win-light);
-      padding: 4px 8px;
-      box-sizing: border-box;
-      resize: none;
-      cursor: default;
+      background: var(--win-face);
+      border-top: 1px solid var(--win-shadow);
+      border-left: 1px solid var(--win-shadow);
+      border-right: 1px solid var(--win-light);
+      border-bottom: 1px solid var(--win-light);
+      padding: 2px 6px;
+      margin-top: 4px;
       letter-spacing: 0.5px;
     }
 
-    .decoder-row {
+    .ascii-entry {
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
+      gap: 4px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 11px;
+      background: #f5f5ff;
+      border-top: 1px solid var(--win-light);
+      border-left: 1px solid var(--win-light);
+      border-right: 1px solid #aaa;
+      border-bottom: 1px solid #aaa;
+      padding: 2px 5px;
     }
 
-    .decoder-btn {
-      background: var(--win-face);
-      border-top: 2px solid var(--win-light);
-      border-left: 2px solid var(--win-light);
-      border-right: 2px solid var(--win-dark);
-      border-bottom: 2px solid var(--win-dark);
-      padding: 4px 18px;
-      font-family: 'Tahoma', Arial, sans-serif;
-      font-size: 11px;
+    .ascii-entry .dec {
+      color: var(--win-titlebar);
       font-weight: bold;
-      color: var(--win-text);
-      cursor: pointer;
-      white-space: nowrap;
-      -webkit-tap-highlight-color: transparent;
-      flex-shrink: 0;
+      min-width: 22px;
+      text-align: right;
     }
 
-    .decoder-btn:hover {
-      background: #e8e4dc;
+    .ascii-entry .sep {
+      color: #999;
+      font-size: 9px;
     }
 
-    .decoder-btn:active {
-      border-top: 2px solid var(--win-dark);
-      border-left: 2px solid var(--win-dark);
-      border-right: 2px solid var(--win-light);
-      border-bottom: 2px solid var(--win-light);
-      padding-top: 6px;
-      padding-left: 20px;
+    .ascii-entry .chr {
+      color: #008000;
+      font-weight: bold;
+      min-width: 14px;
+      text-align: center;
     }
 
-    .decoder-clear-btn {
-      background: var(--win-face);
-      border-top: 2px solid var(--win-light);
-      border-left: 2px solid var(--win-light);
-      border-right: 2px solid var(--win-dark);
-      border-bottom: 2px solid var(--win-dark);
-      padding: 4px 10px;
-      font-family: 'Tahoma', Arial, sans-serif;
-      font-size: 11px;
-      color: var(--win-text-dim);
-      cursor: pointer;
-      white-space: nowrap;
-      -webkit-tap-highlight-color: transparent;
-      flex-shrink: 0;
-    }
-
-    .decoder-clear-btn:hover {
-      color: var(--win-text);
-      background: #e8e4dc;
-    }
-
-    .decoder-clear-btn:active {
-      border-top: 2px solid var(--win-dark);
-      border-left: 2px solid var(--win-dark);
-      border-right: 2px solid var(--win-light);
-      border-bottom: 2px solid var(--win-light);
-    }
-
-    .decoder-error {
-      color: #cc0000;
-      font-size: 10px;
+    .ascii-entry.special .chr {
+      color: #8b0000;
       font-style: italic;
-      min-height: 14px;
-      margin-bottom: 4px;
     }
 
-    .decoder-statusbar {
+    .ascii-statusbar {
       background: var(--win-face);
       border-top: 1px solid var(--win-shadow);
       padding: 3px 8px;
@@ -1018,12 +992,12 @@
       </div>
     </div>
 
-    <!-- ASCII DECODER TOOL WINDOW -->
-    <div class="win-window" id="asciiDecoderWindow">
+    <!-- ASCII DECODE TABLE WINDOW -->
+    <div class="win-window" id="asciiTableWindow">
       <div class="win-titlebar">
         <div class="win-titlebar-left">
           <span class="win-titlebar-icon">🔢</span>
-          <span class="win-titlebar-text">ASCII Decoder Tool</span>
+          <span class="win-titlebar-text">ASCII Decode Table</span>
         </div>
         <div class="win-controls">
           <button class="win-ctrl-btn" title="Minimize">_</button>
@@ -1031,34 +1005,18 @@
           <button class="win-ctrl-btn" title="Close">✕</button>
         </div>
       </div>
-      <div class="section-label">🔡 &nbsp;Konversi angka ASCII → Teks nama snack</div>
-      <div class="decoder-body">
-        <label class="decoder-label" for="asciiInput">
-          Paste hasil angka dari Colab di sini (pisahkan dengan spasi):
-        </label>
-        <textarea
-          class="decoder-textarea"
-          id="asciiInput"
-          placeholder="Contoh: 72 101 108 108 111"
-          spellcheck="false"
-          autocomplete="off"
-        ></textarea>
-        <div class="decoder-row">
-          <button class="decoder-btn" id="decodeBtn" onclick="decodeAscii()">Decode ▶</button>
-          <button class="decoder-clear-btn" id="clearBtn" onclick="clearDecoder()">Clear</button>
-          <span class="decoder-error" id="decodeError"></span>
+      <div class="section-label">📋 &nbsp;Referensi cepat: Angka Desimal → Karakter ASCII</div>
+      <div class="ascii-table-body">
+        <div class="ascii-system-msg">
+          💬 <span>SYSTEM MESSAGE:</span> Cocokkan angka dari output programmu dengan tabel di bawah ini untuk menemukan
+          nama snack!
         </div>
-        <label class="decoder-label" for="asciiOutput">Hasil Decode:</label>
-        <textarea
-          class="decoder-output"
-          id="asciiOutput"
-          readonly
-          placeholder="Hasil teks akan muncul di sini…"
-          spellcheck="false"
-        ></textarea>
+        <div class="ascii-table-wrap">
+          <div class="ascii-multi-col" id="asciiTableGrid"></div>
+        </div>
       </div>
-      <div class="decoder-statusbar">
-        <span id="decoderStatus">Siap — Masukkan angka lalu klik Decode</span>
+      <div class="ascii-statusbar">
+        <span>Referensi: DEC 32–90 (Spasi, Strip, A–Z) &amp; 97–122 (a–z)</span>
         <span>ASCII / UTF-8</span>
       </div>
     </div>
@@ -1469,65 +1427,54 @@ print(*[i + j for i, j in zip(x, y)])`
     updateClock();
     setInterval(updateClock, 10000);
 
-    // ── ASCII Decoder Tool ──
-    function decodeAscii() {
-      var input = document.getElementById('asciiInput').value.trim();
-      var errorEl = document.getElementById('decodeError');
-      var outputEl = document.getElementById('asciiOutput');
-      var statusEl = document.getElementById('decoderStatus');
+    // ── ASCII Decode Table Generator ──
+    (function buildAsciiTable() {
+      var grid = document.getElementById('asciiTableGrid');
+      if (!grid) return;
 
-      errorEl.textContent = '';
-      outputEl.value = '';
+      // Kelompok 1: Spasi & Strip
+      var titleSpecial = document.createElement('div');
+      titleSpecial.className = 'ascii-group-title';
+      titleSpecial.textContent = '⎵ Spasi & Tanda';
+      grid.appendChild(titleSpecial);
 
-      if (!input) {
-        errorEl.textContent = '⚠ Input kosong. Masukkan angka terlebih dahulu.';
-        statusEl.textContent = 'Error — input kosong';
-        return;
+      var specials = [
+        { dec: 32, chr: 'SPASI' },
+        { dec: 45, chr: '-' }
+      ];
+      specials.forEach(function (item) {
+        var el = document.createElement('div');
+        el.className = 'ascii-entry special';
+        el.innerHTML = '<span class="dec">' + item.dec + '</span><span class="sep">=</span><span class="chr">' + item.chr + '</span>';
+        grid.appendChild(el);
+      });
+
+      // Kelompok 2: Huruf Besar A-Z (65-90)
+      var titleUpper = document.createElement('div');
+      titleUpper.className = 'ascii-group-title';
+      titleUpper.textContent = '🔠 Huruf Besar A–Z (65–90)';
+      grid.appendChild(titleUpper);
+
+      for (var i = 65; i <= 90; i++) {
+        var el = document.createElement('div');
+        el.className = 'ascii-entry';
+        el.innerHTML = '<span class="dec">' + i + '</span><span class="sep">=</span><span class="chr">' + String.fromCharCode(i) + '</span>';
+        grid.appendChild(el);
       }
 
-      var tokens = input.split(/\s+/).filter(function(t) { return t !== ''; });
-      var chars = [];
-      var hasError = false;
+      // Kelompok 3: Huruf Kecil a-z (97-122)
+      var titleLower = document.createElement('div');
+      titleLower.className = 'ascii-group-title';
+      titleLower.textContent = '🔡 Huruf Kecil a–z (97–122)';
+      grid.appendChild(titleLower);
 
-      for (var i = 0; i < tokens.length; i++) {
-        var num = parseInt(tokens[i], 10);
-        if (isNaN(num)) {
-          errorEl.textContent = '⚠ Token tidak valid: "' + tokens[i] + '". Pastikan hanya angka dipisah spasi.';
-          statusEl.textContent = 'Error — token tidak valid';
-          hasError = true;
-          break;
-        }
-        if (num < 0 || num > 127) {
-          errorEl.textContent = '⚠ Nilai ' + num + ' di luar rentang ASCII (0–127).';
-          statusEl.textContent = 'Error — nilai di luar rentang ASCII';
-          hasError = true;
-          break;
-        }
-        chars.push(String.fromCharCode(num));
+      for (var j = 97; j <= 122; j++) {
+        var el2 = document.createElement('div');
+        el2.className = 'ascii-entry';
+        el2.innerHTML = '<span class="dec">' + j + '</span><span class="sep">=</span><span class="chr">' + String.fromCharCode(j) + '</span>';
+        grid.appendChild(el2);
       }
-
-      if (!hasError) {
-        var result = chars.join('');
-        outputEl.value = result;
-        statusEl.textContent = 'Decoded ' + tokens.length + ' karakter → "' + result + '"';
-      }
-    }
-
-    function clearDecoder() {
-      document.getElementById('asciiInput').value = '';
-      document.getElementById('asciiOutput').value = '';
-      document.getElementById('decodeError').textContent = '';
-      document.getElementById('decoderStatus').textContent = 'Siap — Masukkan angka lalu klik Decode';
-      document.getElementById('asciiInput').focus();
-    }
-
-    // Allow Enter key in input area to trigger decode
-    document.getElementById('asciiInput').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        decodeAscii();
-      }
-    });
+    })();
   </script>
 </body>
 
