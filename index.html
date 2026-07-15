@@ -611,8 +611,15 @@
     }
 
     /* ── COPY BUTTON ── */
+    /* ── BUTTON TOOLBAR (Copy + Colab) ── */
+    .btn-toolbar {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
     .copy-btn {
-      width: 100%;
+      flex: 1;
       background: var(--win-face);
       border-top: 2px solid var(--win-light);
       border-left: 2px solid var(--win-light);
@@ -627,7 +634,6 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      margin-bottom: 10px;
       letter-spacing: 0.3px;
       -webkit-tap-highlight-color: transparent;
     }
@@ -648,6 +654,44 @@
     .copy-btn.copied {
       color: var(--win-green);
       background: #e8ffe8;
+    }
+
+    /* ── COLAB BUTTON ── */
+    .colab-btn {
+      flex: 1;
+      background: var(--win-face);
+      border-top: 2px solid var(--win-light);
+      border-left: 2px solid var(--win-light);
+      border-right: 2px solid var(--win-dark);
+      border-bottom: 2px solid var(--win-dark);
+      padding: 5px 12px;
+      font-family: 'Tahoma', Arial, sans-serif;
+      font-size: 11px;
+      color: #000080;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      letter-spacing: 0.3px;
+      text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .colab-btn:hover {
+      background: #dce8ff;
+      color: #000080;
+      text-decoration: none;
+    }
+
+    .colab-btn:active {
+      border-top: 2px solid var(--win-dark);
+      border-left: 2px solid var(--win-dark);
+      border-right: 2px solid var(--win-light);
+      border-bottom: 2px solid var(--win-light);
+      padding-top: 7px;
+      padding-left: 14px;
     }
 
     /* ── HINT BOX ── */
@@ -1070,10 +1114,15 @@
             <span>Python 3 | UTF-8</span>
           </div>
         </div>
-        <button class="copy-btn" id="copyBtn">
-          <span id="copyIcon">📋</span>
-          <span id="copyText">Copy to Clipboard</span>
-        </button>
+        <div class="btn-toolbar">
+          <button class="copy-btn" id="copyBtn">
+            <span id="copyIcon">📋</span>
+            <span id="copyText">Copy to Clipboard</span>
+          </button>
+          <a class="colab-btn" href="https://colab.research.google.com/" target="_blank" rel="noopener noreferrer">
+            🚀 Buka Google Colab
+          </a>
+        </div>
         <div class="hint-box">
           <strong>💡 HINT — Cara Decode ASCII</strong><br />
           Setelah dapat output angka, gunakan tabel ASCII atau di Python:<br />
